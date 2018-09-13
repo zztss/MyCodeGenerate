@@ -74,11 +74,11 @@ namespace [:Namespace:].Data
 
         public void Dispose()
         {
-            dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        private void dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!_disposed)
             {
@@ -101,7 +101,7 @@ namespace [:Namespace:].Data
 
         ~DapperUnitOfWork()
         {
-            dispose(false);
+            Dispose(false);
         }
     }
 }
