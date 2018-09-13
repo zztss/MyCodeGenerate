@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PatternFile>
+	<Name>User Entity Objects</Name>
+	<Description>User entity objects pattern</Description>
+	<Options
+		Group="Database Model"
+		AppliesTo="TablesAndViewsEach"
+		Overwrite="false"
+		FilePath="Entities\UserEntities\[:TableNameFirstUpper:].cs"
+		Language="C#"
+		/>
+	<BaseContent>
+		<![CDATA[using System;
+using System.ComponentModel.DataAnnotations;
+using [:Namespace:].Base;
+
+namespace [:Namespace:].Entities
+{
+	/// <summary>
+	/// User custom methods for [:TableNameFirstUpper:]
+	/// </summary>
+	partial class [:TableNameFirstUpper:]
+	{
+
+	}
+}
+]]>
+	</BaseContent>
+</PatternFile>

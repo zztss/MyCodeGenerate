@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PatternFile>
+  <Name>UnitOfWork</Name>
+  <Description>Application config file</Description>
+  <Options
+		Group="Engine"
+		AppliesTo="TablesAndViewsAll"
+		Overwrite="true"
+		FilePath="UnitOfWork.cs"
+		Language="C#"
+		/>
+  <BaseContent>
+    <![CDATA[using System;
+    using System.Data;
+ 
+namespace [:Namespace:].Data
+{
+    /// <summary>
+    /// Unit Of Work 实现
+    /// </summary>
+    public class DapperUnitOfWork : IUnitOfWork, IDisposable
+    {
+      private IDbConnection _connection;
+      private IDbTransaction _transaction;
+      private bool _disposed;
+      public DapperUnitOfWork()
+       {
+            //用什么数据库，在这里调整
+            _connection = new [:ProviderClassConnection:](ConfigurationManager.ConnectionStrings["[:DatabaseName:]"].ConnectionString);
+            OpenConnection();
+            BeginTransaction();
+       }
+      public DapperUnitOfWork(string connectionString)
+        {
+            _connection = new [:ProviderClassConnection:](connectionString);
+            OpenConnection();
+            BeginTransaction();
+        }
+         #region Repository
+        [#DefineRepository#]
+         #endregion
+           private void ResetRepositories()
+        {
+              [#DefineRepositoryReset#]
+        }
+        protected void OpenConnection()
+        {
+            if (_connection != null && _connection.State != ConnectionState.Open)
+                _connection.Open();
+        }
+        protected IDbTransaction BeginTransaction()
+        {
+            _transaction = _connection.BeginTransaction();
+            return _transaction;
+        }
+        public void Commit()
+        {
+            try
+            {
+                _transaction.Commit();
+            }
+            catch
+            {
+                _transaction.Rollback();
+                throw;
+            }
+            finally
+            {
+                _transaction.Dispose();
+                _transaction = _connection.BeginTransaction();
+                ResetRepositories();
+            }
+        }
+
+        public void Dispose()
+        {
+            dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if (_transaction != null)
+                    {
+                        _transaction.Dispose();
+                        _transaction = null;
+                    }
+                    if (_connection != null)
+                    {
+                        _connection.Dispose();
+                        _connection = null;
+                    }
+                }
+                _disposed = true;
+            }
+        }
+
+        ~DapperUnitOfWork()
+        {
+            dispose(false);
+        }
+    }
+}
+]]>
+  </BaseContent>
+  <PatternContent Name="DefineRepository" ConditionKeyMode="TablesAndViewsAll">
+    <BaseContent>[:InnerContent:]</BaseContent>
+    <Condition Key="TheReplacement">
+      <![CDATA[
+       private [:TableNameFirstUpper:]Repository _[:TableName:]Repository;
+
+        public [:TableNameFirstUpper:]Repository [:TableNameFirstUpper:]Repository
+        {
+            get { return _[:TableName:]Repository ?? (_[:TableName:]Repository = new [:TableNameFirstUpper:]Repository(_transaction)); }
+        }
+	    ]]>
+    </Condition>
+  </PatternContent>
+
+  <PatternContent Name="DefineRepositoryReset" ConditionKeyMode="TablesAndViewsAll">
+    <BaseContent>[:InnerContent:]</BaseContent>
+    <Condition Key="TheReplacement">
+      <![CDATA[
+       _[:TableName:]Repository=null;
+	    ]]>
+    </Condition>
+  </PatternContent>
+</PatternFile>

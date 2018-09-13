@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PatternFile>
+  <Name>IUnitOfWork</Name>
+  <Description>Application config file</Description>
+  <Options
+		Group="Engine"
+		AppliesTo="TablesAndViewsAll"
+		Overwrite="true"
+		FilePath="IUnitOfWork.cs"
+		Language="C#"
+		/>
+  <BaseContent>
+    <![CDATA[using System;
+    using System.Data;
+ 
+namespace [:Namespace:].Data
+{
+      /// <summary>
+      /// Unit of Work 接口
+      /// </summary>
+    public interface IUnitOfWork : IDisposable
+    {
+       void Commit();
+       [#TablesRepository#]
+    }
+}
+]]>
+  </BaseContent>
+  <PatternContent Name="TablesRepository" ConditionKeyMode="TablesAndViewsAll">
+    <BaseContent>[:InnerContent:]</BaseContent>
+    <Condition Key="TheReplacement">
+      <![CDATA[
+	  	[:TableNameFirstUpper:]Repository [:TableNameFirstUpper:]Repository{get;}
+	    ]]>
+    </Condition>
+  </PatternContent>
+</PatternFile>
